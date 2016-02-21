@@ -26,6 +26,11 @@ first.factors <- function(v, n){
   factor(v[v %in% levels(v)[1:n]])
 }
 
+# Distance between 2 points
+distance <- function(x1, x2, y1, y2){
+  sqrt((x2-x1)^2 + (y2-y1)^2)
+}
+
 # Import data
 if(file.exists("train")){
   load(file = "train")
@@ -47,6 +52,7 @@ train$Longitude <- train$X
 train$Latitude <- train$Y
 train$X <- NULL
 train$Y <- NULL
+train$DistanceFromPd <- left_join(train[, c("PdDistrict", "Latitude", "Longitude")], PdDistrictAdress, by = "PdDistrict") %>% mutate(distance = distance(Longitude.x, Longitude.y, Latitude.x, Latitude.y)) %>% .$distance
 
 # Clean data
 train[train$Latitude > 50, c("Latitude", "Longitude")] <- c(NA, NA)
@@ -63,6 +69,11 @@ plot(train$Descript)
 plot(first.factors(train$Descript, 3))
 plot(train$Resolution)
 plot(first.factors(train$Resolution, 5))
+hist(train$DistanceFromPd, xlab = "Distance from police station", main = "")
+
+train %>%
+  group_by(Category) %>%
+  summarise(distance = median(DistanceFromPd, na.rm = TRUE), sd = sd(DistanceFromPd, na.rm = TRUE))
 
 # Location of police department
 leaflet(PdDistrictAdress) %>%
