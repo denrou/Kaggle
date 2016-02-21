@@ -15,8 +15,15 @@ weekdays.name <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satu
 
 PdDistrictAdress <- data.frame(PdDistrict = c("CENTRAL", "SOUTHERN", "BAYVIEW", "MISSION", "NORTHERN", "PARK", "RICHMOND", "INGLESIDE", "TARAVAL", "TENDERLOIN"), Latitude = c(37.7998119, 37.7723802, 37.7297322, 37.762849, 37.7800522, 37.7681771, 37.7800026, 37.7249352, 37.7437308, 37.7836739), Longitude = c(-122.3992794, -122.3894121, -122.3979806, -122.422005, -122.4329453, -122.4550214, -122.4647522, -122.4432539, -122.4811864, -122.4128991))
 
+
+# From a list of factor, returns levels sorted by number of occurence
 sort.levels <- function(v){
   names(sort(table(v), decreasing = TRUE))
+}
+
+# From a list of factor, return a list of factor from the first n levels
+first.factors <- function(v, n){
+  factor(v[v %in% levels(v)[1:n]])
 }
 
 # Import data
@@ -51,10 +58,13 @@ hist(train$Dates, breaks = 20, freq = TRUE, xlab = "Year")
 plot(train$Month, xlab = "")
 plot(train$Weekday, xlab = "")
 plot(train$Category)
+plot(first.factors(train$Category, 5))
 plot(train$Descript)
+plot(first.factors(train$Descript, 3))
 plot(train$Resolution)
+plot(first.factors(train$Resolution, 5))
 
 # Location of police department
-leaflet(PdDistrictAdress) %>% 
-  addTiles() %>% 
+leaflet(PdDistrictAdress) %>%
+  addTiles() %>%
   addMarkers(lng = ~Longitude, lat = ~Latitude, popup = ~PdDistrict)
